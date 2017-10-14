@@ -1,0 +1,187 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" 
+           uri="http://java.sun.com/jsp/jstl/core" %>    
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+       	<%@include file="/WEB-INF/view/include/css.jsp" %>
+        <script language="javascript" type="text/javascript">
+	        document.onreadystatechange = function () {      
+	            if(document.readyState=="complete") {
+	            	$("#headClass5").attr("class","service_on");
+	            }     
+	        } 
+            //显示角色详细信息
+            function showDetail(flag, a) {
+                var detailDiv = a.parentNode.getElementsByTagName("div")[0];
+                if (flag) {
+                    detailDiv.style.display = "block";
+                }
+                else
+                    detailDiv.style.display = "none";
+            } 
+          //删除
+            function deleteBuss(finId) {
+                var r = window.confirm("确定要删除此业务账号吗？删除后将不能恢复。");
+                if(r==true){
+					  location.href="${pageContext.request.contextPath}/service/clearService.do?id="+finId	 
+            }
+              $("#operate_result_info").css("display","block")
+            }
+            //开通或暂停
+     
+            function setStatePause(finId) {
+            		 var r = window.confirm("确定要暂停此账务账号吗？");
+                     if(r==true){
+     					 location.href="${pageContext.request.contextPath}/service/pauseService.do?id="+finId	 
+     				}	           
+                $("#operate_result_info").css("display","block")
+            }
+            function setStateOpen(finId) {
+       		 var r = window.confirm("确定要开通此账务账号吗？");
+                if(r==true){
+					 location.href="${pageContext.request.contextPath}/service/openService.do?id="+finId	 
+				}	           
+               $("#operate_result_info").css("display","block")
+           }
+            function curPage(id){
+            	location.href='${pageContext.request.contextPath}/service/getByPageCondition.do?os=${os}&ip=${ip}&idc=${idc}&state=${state}&currPage='+id
+            }
+        </script>
+    </head>
+    <body>
+        <!--Logo区域开始-->
+        <%@include file="/WEB-INF/view/include/header.jsp" %>
+        <!--导航区域开始-->
+        <%@include file="/WEB-INF/view/include/menu.jsp" %>
+        <!--主要区域开始-->
+        <div id="main">
+            <form action="${pageContext.request.contextPath }/service/getByPageCondition.do" method="post">
+                <!--查询-->
+                <div class="search_add">                        
+                    <div>OS 账号：<input type="text" name="os" value="${os}" class="width100 text_search" /></div>                            
+                    <div>服务器 IP：<input type="text" name="ip" value="${ip}" class="width100 text_search" /></div>
+                    <div>身份证：<input type="text"  name="idc" value="${idc}" class="text_search" /></div>
+                    <div>状态：
+                        <select name="state" class="select_search">
+                            <option value="4" selected="selected">全部</option>
+                            <option value="2" <c:if test="${state==2}">selected</c:if>>开通</option>
+                            <option value="1" <c:if test="${state==1}">selected</c:if>>暂停</option>
+                            <option value="3" <c:if test="${state==3}">selected</c:if>>删除</option>
+                        </select>
+                    </div>
+                    <div>
+                    	<!-- <input type="button" value="搜索" class="btn_search" onclick="submit()" /> -->
+                    	<button id="search" type="button" class="btn btn-primary btn-xs" onclick="submit()" >&nbsp;&nbsp;搜&nbsp;&nbsp;索&nbsp;&nbsp;</button>
+                    </div>
+                    <%-- <input type="button" value="增加" class="btn_add" onclick="location.href='${pageContext.request.contextPath}/service/toAddService.do';" /> --%>
+                    <button type="button" class="btn btn-primary btn-xs " style="height:25px;width:80px" onclick="location.href='${pageContext.request.contextPath}/service/toAddService.do';" >&nbsp;&nbsp;&nbsp;&nbsp;增&nbsp;&nbsp;加&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                </div>  
+                <!--删除的操作提示-->
+                <div id="operate_result_info" class="operate_success">
+                    <img src="../images/close.png" onclick="this.parentNode.style.display='none';" />
+                    操作成功！
+                </div>   
+                <!--数据区域：用表格展示数据-->     
+                <div id="data">            
+                    <table id="datalist">
+                    <tr>
+                        <th class="width50">业务ID</th>
+                        <th class="width70">账务账号ID</th>
+                        <th class="width150">身份证</th>
+                        <th class="width70">姓名</th>
+                        <th>OS 账号</th>
+                        <th class="width50">状态</th>
+                        <th class="width100">服务器 IP</th>
+                        <th class="width100">资费</th>                                                        
+                        <th class="width200"></th>
+                    </tr>
+                   <c:forEach items="${busses}" var="buss" >
+                   		 <tr id="tr${buss.ser_id }">
+                   		    <td><a title="查看明细" href="javascript:location.href='${pageContext.request.contextPath}/service/detailService.do?id=${buss.ser_id}'">${buss.ser_id}</a></td>
+	                        <%-- <td><a href="service_detail.jsp" title="查看明细">${buss.ser_id }</a></td> --%>
+	                        <td>${buss.acc.acc_id}</td>
+	                        <td>${buss.acc.acc_idc}</td>
+	                        <td>${buss.acc.acc_name}</td>
+	                        <td>${buss.ser_os}</td>
+	                        <c:choose>
+	                        	<c:when test="${buss.ser_state==2 }">
+	                        		<td>开通</td>
+	                        	</c:when>
+	                        	<c:when test="${buss.ser_state==1 }">
+	                        		<td>暂停</td>
+	                        	</c:when>
+	                        	<c:when test="${buss.ser_state==3 }">
+	                        		<td>删除</td>
+	                        	</c:when>
+	                        </c:choose>
+	                        <td>${buss.ser_ip}</td>
+	                        <td>
+ 	                            <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">${buss.fee.fee_name }</a>
+	                            <!--浮动的详细信息-->
+	                            <div class="detail_info">
+	                               <%--  ${buss.tar.dur }小时，${buss.tar.bas_exp } 元，超出部分 ${buss.tar.unit_cost }元/分钟 --%>
+	                               ${buss.fee.fee_des}
+	                            </div>
+	                        </td>                            
+	                        <td class="td_modi">
+	                            <c:if test="${buss.ser_state!=3}">
+	                            	<c:if test="${buss.ser_state==1}"><input type="button" value="开通" class="btn_start"  onclick="setStateOpen(${buss.ser_id});"/></c:if>
+	                            	<c:if test="${buss.ser_state==2}"><input type="button" value="暂停" class="btn_pause"  onclick="setStatePause(${buss.ser_id});"/></c:if>
+	                            	<input type="button" value="修改" class="btn_modify" onclick="location.href='${pageContext.request.contextPath}/service/modifyService.do?id=${buss.ser_id}';" />
+	                            	<input type="button" value="删除" class="btn_delete" onclick="deleteBuss(${buss.ser_id});" />
+	                            </c:if>
+	                        </td>
+                    	</tr>
+                   </c:forEach>
+                    </table> 
+                </div>     
+                               
+                <!--分页-->
+                <div id="pages">
+                <c:if test="${totalPage!=0}">
+                 <c:if test="${currPage!=1}">
+        	        <a href="#" onclick="curPage(1)">首页</a>
+        	        <a href="#" onclick="curPage(${currPage-1})">上一页</a>
+        	     </c:if>
+        	     <c:if test="${currPage==1}">
+        	       		 首页&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上一页
+        	     </c:if>   
+				<!-- 要求只能显示三条页数 -->
+					<c:if test="${currPage==1}">
+						<a class="current_page">${currPage}</a>
+						<c:if test="${totalPage>currPage}"><a href="#" onclick="curPage(${currPage+1})">2</a></c:if>
+						<c:if test="${totalPage>currPage+1}"><a href="#" onclick="curPage(${currPage+2})">3</a></c:if>
+					</c:if>
+					
+					<c:if test="${currPage>1}">
+						<c:if test="${currPage!=totalPage}"><a href="#" onclick="curPage(${currPage-1})">${currPage-1}</a></c:if> 
+						<c:if test="${currPage!=totalPage}"><a class="current_page" >${currPage}</a></c:if>  
+						<c:if test="${totalPage>currPage}"><a href="#" onclick="curPage(${currPage+1})">${currPage+1}</a></c:if>
+					</c:if>
+					
+					<c:if test="${currPage>1&&currPage==totalPage}">
+					      <c:if test="${currPage>2}"><a href="#" onclick="curPage(${currPage-2})">${currPage-2}</a></c:if>  
+						    <a href="#" onclick="curPage(${currPage-1})">${currPage-1}</a>
+						    <a class="current_page">${currPage}</a>
+					</c:if>
+				 <c:if test="${currPage!=totalPage}">   
+        	        <a href="#" onclick="curPage(${currPage+1})">下一页</a>
+        	        <a href="#" onclick="curPage(${totalPage})">末页</a>
+        	     </c:if>
+        	     <c:if test="${currPage==totalPage}">   
+        	                         下一页&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 末页
+        	     </c:if>
+                   </c:if>                                
+                </div>                    
+        </form>
+        </div>
+        <!--主要区域结束-->
+        <div id="footer">
+           
+        </div>
+    </body>
+</html>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.netctoss.dao.AccountDao">
+	<!-- 通过条件查询账务账号 -->
+	<select id="selectAccountByCondition" resultType="Account">
+		select * from account
+		<where>
+			<if test='account.acc_idc!=null and account.acc_idc!=""'>
+				and acc_idc like concat(concat('%',#{account.acc_idc}),'%')
+			</if>
+			<if test='account.acc_name!=null and account.acc_name!=""'>
+				and acc_name like concat(concat('%',#{account.acc_name}),'%')
+			</if>
+			<if test='account.acc_login!=null and account.acc_login!=""'>
+				and acc_login like concat(concat('%',#{account.acc_login}),'%')
+			</if>
+			<if test='account.acc_state!=null and account.acc_state!=-1'>
+				and acc_state = #{account.acc_state}
+			</if>
+		</where>
+		order by acc_id desc limit #{start},#{pagesize}
+	</select>
+	<!-- 通过省份证号查询账务账号 -->
+	 <select id="selectAccByIDCard" resultType="Account">
+	 	select * from account where acc_idc=#{acc_idc}
+	 </select>
+	<select id="selectAccByLogin" resultType="Account">
+		select * from account where acc_login=#{acc_login}
+	</select>
+	<!-- 通过id查询账务账号 -->
+	<select id="selectAccountByAccId" resultType="Account">
+		select * from account where acc_id = #{acc_id}
+	</select>
+	<!-- 添加新的账务账号 -->
+	<insert id="insertAccount">
+		insert into account(acc_name,acc_idc,acc_login,acc_psw,acc_tel,
+				acc_inidc,acc_birth,acc_email,acc_job,acc_sex,acc_addr,
+				acc_post,qq,acc_stime,acc_state)
+				values(#{acc_name},#{acc_idc},#{acc_login},#{acc_psw},#{acc_tel},
+				#{acc_inidc},#{acc_birth},#{acc_email},#{acc_job},#{acc_sex},
+				#{acc_addr},#{acc_post},#{qq},#{acc_stime},#{acc_state})
+	</insert>
+	<!-- 修改账务账号信息 -->
+	<update id="updateAccountByAccId">
+		update account set acc_name=#{acc_name},acc_tel=#{acc_tel},
+							acc_inidc=#{acc_inidc},acc_email=#{acc_email},
+							acc_job=#{acc_job},acc_sex=#{acc_sex},acc_addr=#{acc_addr},
+							acc_post=#{acc_post},qq=#{qq}
+		<if test='acc_psw!=null and acc_psw!=""'>,acc_psw=#{acc_psw}</if>			
+							 where acc_id=#{acc_id}
+	</update>
+	<!-- 修改状态(暂停，删除) -->
+	<update id="updateAccountState">
+		update account set acc_ctime=#{acc_ctime},acc_state=#{acc_state} where acc_id=#{acc_id}
+	</update>
+	<!-- 同时修改业务账号 -->
+	<update id="updateBussState">
+		update buss set ser_ctime=#{ser_ctime},ser_state=#{ser_state} where acc_id=#{acc_id}
+	</update>
+	<!-- 查询账务账号条数 -->
+	<select id="selectAccCount" resultType="int">
+		select count(acc_id) from account 
+		<where>
+			<if test='account.acc_idc!=null and account.acc_idc!=""'>
+				and acc_idc like concat(concat('%',#{account.acc_idc}),'%')
+			</if>
+			<if test='account.acc_name!=null and account.acc_name!=""'>
+				and acc_name like concat(concat('%',#{account.acc_name}),'%')
+			</if>
+			<if test='account.acc_login!=null and account.acc_login!=""'>
+				and acc_login like concat(concat('%',#{account.acc_login}),'%')
+			</if>
+			<if test='account.acc_state!=null and account.acc_state!=-1'>
+				and acc_state = #{account.acc_state}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

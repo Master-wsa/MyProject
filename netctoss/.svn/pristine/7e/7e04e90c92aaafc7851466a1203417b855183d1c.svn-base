@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.netctoss.dao.FeeDao">
+	<sql id="columns">fee_id,fee_name,fee_type,fee_time,fee_bfee,fee_ufee,fee_ctime,fee_stime,fee_state,fee_des</sql>
+	<sql id="columns1">fee_name,fee_type,fee_time,fee_bfee,fee_ufee,fee_ctime,fee_state,fee_des</sql>
+	
+	<select id="selectFeeById" resultType="Fee">
+		SELECT <include refid="columns" /> FROM fee WHERE fee_id=#{fee_id}
+	</select>
+	<update id="updateFee">
+		UPDATE fee SET fee_name=#{fee_name},fee_type=#{fee_type},fee_time=#{fee_time},fee_bfee=#{fee_bfee},fee_ufee=#{fee_ufee},fee_des=#{fee_des} WHERE fee_id=#{fee_id}
+	</update>
+	<update id="updateFeeStateById">
+		UPDATE fee SET fee_state=#{fee_state},fee_stime=NOW() WHERE fee_id=#{fee_id}
+	</update>
+	<select id="selectFeeSort" resultType="Fee" parameterType="java.util.HashMap">
+		SELECT <include refid="columns" /> FROM Fee 
+		<if test="field != null"> ORDER BY ${field} ${descOrAsc} </if>
+		limit #{pageUtil.startRecored},#{pageUtil.pageSize}
+	</select>
+	<insert id="insertFee">
+		INSERT INTO fee(<include refid="columns1" />) VALUES(#{fee_name},#{fee_type},#{fee_time},#{fee_bfee},#{fee_ufee},NOW(),0,#{fee_des})
+	</insert>
+	<select id="countFee" resultType="java.lang.Integer">
+		select count(fee_id) from fee
+	</select>
+	<select id="selectFeeByName" resultType="Fee">
+		Select fee_id from fee where fee_name=#{fee_name} 
+	</select>
+	<select id="selectAllFee" resultType="Fee">
+		SELECT <include refid="columns" /> FROM Fee 
+	</select>
+</mapper>

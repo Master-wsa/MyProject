@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.netctoss.dao.RoleDao">
+	<!-- 查询所有角色 -->
+	<select id="selectAllRole" resultMap="RoleResultMap1">
+		SELECT rol_id,rol_name FROM role order by rol_id desc
+	</select>
+	<resultMap type="Role" id="RoleResultMap1">
+		<id property="rol_id" column="rol_id"/>
+		<collection property="list_powers" select="com.netctoss.dao.PowersDao.selectPowersByConnection" column="rol_id">
+			<id property="pow_id" column="pow_id"/>
+		</collection>
+	</resultMap>
+	
+	<!-- 删除角色 -->
+	<delete id="deleteRole">
+		DELETE FROM role WHERE rol_id=#{rol_id}
+	</delete>
+	
+	<!-- 删除角色权限 -->
+	<delete id="deleteRolPow">
+		DELETE FROM rolepower WHERE rol_id=#{rol_id}
+	</delete>
+	
+	<!-- 修改角色 -->
+	<update id="updateRole">
+		UPDATE role SET rol_name=#{rol_name} WHERE rol_id=#{rol_id}
+	</update>
+	
+	<!-- 添加角色 -->
+	<insert id="insertRole">
+		INSERT INTO role(rol_name) VALUE(#{rol_name})
+	</insert>
+	
+	<!-- 添加角色权限 -->
+	<insert id="insertRolPow">
+		INSERT INTO rolepower(rol_id,pow_id) VALUES (#{rol_id},#{pow_id})
+	</insert>
+	
+	<!-- 通过rol_name查找rol_id -->
+	<select id="selectRoleByName" resultType="Role">
+		SELECT rol_id,rol_name FROM role WHERE rol_name=#{rol_name}
+	</select>
+	
+	<!-- 通过rol_id查找Role -->
+	<select id="selectRoleById" resultMap="RoleResultMap2">
+		SELECT rol_id,rol_name FROM role WHERE rol_id=#{rol_id}
+	</select>
+	<resultMap type="Role" id="RoleResultMap2">
+		<id property="rol_id" column="rol_id"/>
+		<collection property="list_powers" select="com.netctoss.dao.PowersDao.selectPowersByConnection" column="rol_id">
+			<id property="pow_id" column="pow_id"/>
+		</collection>
+	</resultMap>
+</mapper>

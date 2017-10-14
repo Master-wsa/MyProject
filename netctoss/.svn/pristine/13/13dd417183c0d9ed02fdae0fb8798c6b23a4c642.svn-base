@@ -1,0 +1,92 @@
+package com.netctoss.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.netctoss.entity.Admin;
+
+/**
+ * 管理员业务层
+ * @author anjia
+ *
+ */
+public interface AdminService {
+	/**
+	 * 添加管理员信息
+	 * @param admin
+	 * @return
+	 */
+	public int addAdmin(Admin admin);
+	/**
+	 * 修改管理员密码
+	 * @param admin
+	 * @return
+	 */
+	public boolean updateAdminPsw(Admin admin);
+	/**
+	 * 管理员信息修改
+	 * @param admin
+	 * @return
+	 */
+	public boolean updateAdminInfo(Admin admin);
+	/**
+	 * 通过管理员模块修改管理员信息
+	 * @param admin
+	 * @return
+	 */
+	public int updateInfoByAdmin(Admin admin);
+	/**
+	 * 重置管理员密码
+	 * @param listI
+	 * @return
+	 */
+	public int updateResetPsw(List<Integer> listI);
+	/**
+	 * 修改管理员的头像
+	 * @param admin
+	 * @return
+	 */
+	public int updateImage(Admin admin);
+	/**
+	 * 删除管理员信息
+	 * @param admin
+	 * @return
+	 */
+	public int delAdmin(Admin admin);
+	/**
+	 * 登录
+	 * @param admin
+	 * @return
+	 */
+	public Admin login(Admin admin);
+	/**
+	 * 根据角色ID查询管理员
+	 * @param admin
+	 * @return
+	 */
+	public List<Admin> getAdminByRoleId(Admin admin);
+	/**
+	 * 根据管理员账号查询管理员信息
+	 * @param admin
+	 * @return
+	 */
+	public Admin getAdminByAccount(Admin admin);
+	/**
+	 * 查询管理员信息
+	 * @param admin
+	 * @return
+	 */
+	public List<Admin> getAllAdmins(Map<String,Object> map);
+	/**
+	 * 获取管理员个数
+	 * @return
+	 */
+	public int getAdminCount(Map<String,Object> map);
+	/**
+	 * 通过id查询管理员
+	 * @param admin
+	 * @return
+	 */
+	public Admin getAdminById(Admin admin);
+	
+}

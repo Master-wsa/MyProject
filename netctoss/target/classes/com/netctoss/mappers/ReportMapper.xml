@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.netctoss.dao.ReportDao">
+ 	<select id="getAllReport" parameterType="java.util.HashMap"  resultType="report">
+ 		SELECT a.acc_id,a.acc_login,a.acc_name,a.acc_idc,a.acc_tel,b.bil_time,b.bil_alltime FROM account a INNER JOIN bill b ON a.acc_id=b.acc_id 
+ 		<if test="startRecored!=-1">
+			limit #{startRecored},#{pageSize}
+		</if>
+ 	</select>
+ 	<!-- <resultMap type="Report" id="reportMapping">
+ 		<association property="account" javaType="account">
+ 			<id property="acc_id" column="acc_id"></id>
+ 			<result property="acc_login" column="acc_login"></result>
+ 			<result property="acc_name" column="acc_name"></result>
+ 			<result property="acc_idc" column="acc_idc"></result>
+ 			<result property="acc_tel" column="acc_tel"></result>
+ 		</association>
+ 		<association property="bill" javaType="bill">
+ 			<result property="bil_time" column="bil_time"/>
+ 			<result property="bil_alltime" column="bil_alltime"/>
+ 		</association>
+ 	</resultMap> -->
+ 	<select id="getAllReport2" parameterType="java.util.HashMap"  resultType="report">
+		SELECT d.ser_ip,acc_id,acc_login,acc_name,acc_idc,MAX(ser_time) sat 
+		FROM detail d 
+		INNER JOIN (
+		SELECT a.acc_id,b.ser_id,a.acc_login,a.acc_name,a.acc_idc FROM buss b 
+		INNER JOIN account a ON b.acc_id =a.acc_id) a ON d.ser_id=a.ser_id GROUP BY ser_ip,acc_id ORDER BY MAX(ser_time) DESC 
+		<if test="startRecored!=-1">
+			limit #{startRecored},#{pageSize}
+		</if>
+ 	</select>
+ 	<select id="getAllReport3" parameterType="java.util.HashMap" resultType="report" >
+ 		SELECT b.ser_ip,
+			SUM(f.fee_type=0) t0,
+			SUM(f.fee_type=1) t1,
+			SUM(f.fee_type=2) t2
+			FROM detail b 
+			INNER JOIN fee f 
+			ON b.fee_id=f.fee_id 
+			GROUP BY ser_ip
+		<if test="startRecored!=-1">
+			limit #{startRecored},#{pageSize}
+		</if>
+ 	</select>
+ </mapper>

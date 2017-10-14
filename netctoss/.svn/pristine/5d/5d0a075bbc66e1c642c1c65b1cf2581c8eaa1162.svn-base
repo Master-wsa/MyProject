@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.netctoss.dao.BillDao">
+	<select id="selectBillByCond" resultMap="billMap">
+		SELECT a.*,b.* FROM bill b LEFT JOIN account a ON b.`acc_id`=a.`acc_id`
+		<where>
+			<if test="!''.equals(bill.acc.acc_idc)">
+				a.acc_idc like '%${bill.acc.acc_idc}%'
+			</if>
+			<if test="!''.equals(bill.acc.acc_ids)">
+				and a.acc_id like '%${bill.acc.acc_ids}%'
+			</if>
+			<if test="!''.equals(bill.acc.acc_name)">
+				and a.acc_name like '%${bill.acc.acc_name}%'
+			</if>
+			<if test="type==0">
+				and date_format(b.bil_time,'%Y-%m')=date_format(#{bill.bil_time},'%Y-%m')
+			</if>
+			<if test="type==1">
+				and date_format(b.bil_time,'%Y')=date_format(#{bill.bil_time},'%Y')
+			</if>
+		</where>
+			  limit #{start},#{pageSize}  
+	</select>
+	<resultMap type="Bill" id="billMap">
+		<id property="bil_id" column="bil_id" />
+		<result property="bil_time" column="bil_time" />
+		<result property="bil_fee" column="bil_fee" />
+		<result property="bil_pway" column="bil_pway" />
+		<result property="bil_pstate" column="bil_pstate" />
+		<result property="bil_alltime" column="bil_alltime" />
+		<association property="acc" javaType="Account" column="acc_id">
+			<id property="acc_id" column="acc_id" />
+			<result property="acc_idc" column="acc_idc" />
+			<result property="acc_name" column="acc_name" />
+		</association>
+	</resultMap>
+	<select id="selectBillCount" resultType="int">
+		SELECT count(b.bil_id) FROM bill b LEFT JOIN account a ON b.`acc_id`=a.`acc_id`
+		<where>
+			<if test="!''.equals(bill.acc.acc_idc)">
+				a.acc_idc like '%${bill.acc.acc_idc}%'
+			</if>
+			<if test="!''.equals(bill.acc.acc_ids)">
+				and a.acc_id like '%${bill.acc.acc_ids}%'
+			</if>
+			<if test="!''.equals(bill.acc.acc_name)">
+				and a.acc_name like '%${bill.acc.acc_name}%'
+			</if>
+			<if test="type==0">
+				and date_format(b.bil_time,'%Y-%m')=date_format(#{bill.bil_time},'%Y-%m')
+			</if>
+			<if test="type==1">
+				and date_format(b.bil_time,'%Y')=date_format(#{bill.bil_time},'%Y')
+			</if>
+		</where>
+	</select>
+	<insert id="countItem">
+		INSERT INTO bill(acc_id,bil_time,bil_fee,bil_alltime)
+		SELECT acc_id,DATE_FORMAT(NOW(),'%Y%m01'),SUM(ser_fee),SUM(ser_time) FROM item GROUP BY acc_id,DATE_FORMAT(ite_time,'%Y%m')
+	</insert>
+</mapper>

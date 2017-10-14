@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.netctoss.dao.ItemDao">
+	<select id="selectALlItem" resultMap="itemMap" >
+		SELECT  * from item i,buss b,fee f 
+		WHERE i.ser_id = b.ser_id 
+			AND b.fee_id = f.fee_id 
+			AND i.acc_id = #{item.acc.acc_id} 
+			AND i.ite_time = STR_TO_DATE('${item.ite_time}','%Y-%m-%d')
+			limit #{start},#{pageSize}
+	</select>
+	<resultMap type="Item" id="itemMap">
+		<id property="ite_id" column="ite_id" />
+		<result property="ser_fee" column="ser_fee" />
+		<result property="ser_time" column="ser_time" />
+		<association property="acc" javaType="Account" column="acc_id" >
+			<id property="acc_id" column="acc_id" />
+			<result property="acc_idc" column="acc_idc" />
+			<result property="acc_name" column="acc_name" />
+		</association>
+		<association property="fee" javaType="Fee" column="fee_id">
+			<id property="fee_id" column="fee_id" />
+			<result property="fee_name" column="fee_name" />
+		</association>
+		<association property="ser" javaType="Buss" column="ser_id">
+			<id property="ser_id" column="ser_id" />
+			<result property="ser_os" column="ser_os" />
+			<result property="ser_ip" column="ser_ip" />
+		</association>
+	</resultMap>
+	<select id="selectItemCount" resultType="int" >
+		SELECT  count(ite_id) from item i,buss b,fee f 
+		WHERE i.ser_id = b.ser_id 
+			AND b.fee_id = f.fee_id 
+			AND i.acc_id = #{tiem.acc.acc_id} 
+			AND i.ite_time = STR_TO_DATE('${item.ite_time}','%Y-%m-%d')
+			limit #{start},#{pageSize}
+	</select>
+	<insert id="countDetail">
+		INSERT INTO item(acc_id,ser_id,fee_id,ser_fee,ser_time,ite_time)
+		SELECT 
+		b.acc_id,d.ser_id,d.fee_id,SUM(det_fee),SUM(ser_time),
+		DATE_FORMAT(NOW(),'%Y%m01') 
+		FROM detail d,buss b 
+		WHERE d.`ser_id`=b.`ser_id` AND DATE_FORMAT(d.ser_itime,'%Y%m01')=DATE_FORMAT(NOW(),'%Y%m01')
+	</insert>
+</mapper>

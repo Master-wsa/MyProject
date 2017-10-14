@@ -1,0 +1,58 @@
+package com.netctoss.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.netctoss.entity.Account;
+import com.netctoss.entity.Buss;
+
+public interface AccountService {
+	/**
+	 * 通过条件查询账务账号
+	 * @param account
+	 * @return
+	 */
+	public List<Account> getAccountByCondition(Map map);
+	/**
+	 * 添加新的账务账号
+	 * @param account
+	 * @return
+	 */
+	public int addAccount(Account account);
+	/**
+	 * 通过id查询
+	 * @param account
+	 * @return
+	 */
+	public Account getAccountByAccId(Account account);
+	/**
+	 * 更新掌握账号信息
+	 * @param account
+	 * @return
+	 */
+	public int updateAccountByAccId(Account account);
+	/**
+	 * 修改账务账号状态
+	 * @param account
+	 * @return
+	 */
+	public int updateAccountState(Account account);
+	/**
+	 * 修改业务账号状态
+	 * @param buss
+	 * @return
+	 */
+	public int updateBussState(Buss buss);
+	/**
+	 * 根据身份证ID查询账务账号
+	 * @param account
+	 * @return
+	 */
+	public Account getAccByIDCard(Account account);
+	/**
+	 * 查询账务账号数据
+	 * @param map
+	 * @return
+	 */
+	public int getAccCount(Map map);
+}

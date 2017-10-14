@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ 						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/tx
+ 						http://www.springframework.org/schema/tx/spring-tx.xsd
+ 						http://www.springframework.org/schema/aop
+ 						http://www.springframework.org/schema/aop/spring-aop.xsd
+ 						http://www.springframework.org/schema/context
+ 						http://www.springframework.org/schema/context/spring-context.xsd
+ 						http://www.springframework.org/schema/jee
+ 						http://www.springframework.org/schema/jee/spring-jee.xsd
+ 						http://www.springframework.org/schema/mvc
+ 						http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+ 	<!-- 自动扫描，支持注解装载bean -->
+	<context:component-scan base-package="com.netctoss.dao"></context:component-scan>
+	<context:component-scan base-package="com.netctoss.service"></context:component-scan>
+	<!-- 引入数据库连接信息 -->
+	<context:property-placeholder location="classpath:jdbc.prop" />
+	<!-- 使用c3p0数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${datasource.driver}"></property>
+		<property name="jdbcUrl" value="${datasource.url}"></property>
+		<property name="user" value="${datasource.username}"></property>
+		<property name="password" value="${datasource.password}" ></property>
+	</bean>
+	<!-- 创建事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+ 			<property name="dataSource" ref="dataSource"/>
+ 	</bean>
+ 	<!-- 配置事务通知属性 -->
+ 	<tx:advice id="txAdvice" transaction-manager="transactionManager" >
+ 		<tx:attributes>
+ 			<tx:method name="insert*" propagation="REQUIRED"/>
+ 			<tx:method name="add*" propagation="REQUIRED"/>
+ 			<tx:method name="update*" propagation="REQUIRED"/>
+ 			<tx:method name="del*" propagation="REQUIRED"/>
+ 			<tx:method name="select*" propagation="REQUIRED" read-only="true"/>
+ 			<tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+ 			<tx:method name="login*" propagation="REQUIRED" read-only="true"/>
+ 		</tx:attributes>
+ 	</tx:advice>
+ 	<!-- 配置事务切面 -->
+ 	<aop:config>
+    	<aop:pointcut expression="execution(* com.netctoss.service.*.*(..))" id="myPointCut"/>
+    	<aop:advisor advice-ref="txAdvice" pointcut-ref="myPointCut"/>
+    </aop:config>
+ 	<!-- 配置sqlSessionFactory -->
+ 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" >
+ 		<property name="dataSource" ref="dataSource" ></property>
+ 		<property name="mapperLocations" value="classpath:com/netctoss/mappers/*.xml"></property>
+ 		<property name="configLocation" value="classpath:mybatis_config.xml"></property>
+ 	</bean>
+ 	<!-- spring会自动扫描指定包下的类 -->
+ 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> 
+ 		<property name="basePackage" value="com.netctoss.dao"></property>
+ 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+ 	</bean>
+ 	<!-- 配置Job的bean -->
+ 	<bean id="myJob" class="com.netctoss.util.MyJob" />
+ 	<!-- 配置jobDetail -->
+ <bean id="myJobDetail"
+  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+  <!-- 用到的Job实例 -->
+	  <property name="targetObject">
+	   <ref bean="myJob"/>
+	  </property>
+  <!-- Job实例中的方法 -->
+	  <property name="targetMethod">
+	  	<value>run</value>
+	  </property>
+  </bean>
+ 	<!-- 配置触发器Trigger -->
+<bean id="myTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+  <property name="name" value="work_default_name"/>
+  <property name="group" value="work_default"/>
+  <property name="jobDetail">
+    <ref bean="myJobDetail"/>
+  </property>
+  <property name="cronExpression">
+  <!-- 每个月最后一天23:30执行 -->
+    <value>0 30 23 L * ?</value>
+  </property>
+</bean>
+ 	 <!-- 配置scheduler工厂 -->
+<bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <property name="triggers">
+      <list>
+      <ref bean="myTrigger"/>
+      </list>
+    </property>
+</bean>
+</beans>

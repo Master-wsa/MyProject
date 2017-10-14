@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.netctoss.dao.BussDao">
+ 	<!-- 添加新业务 -->
+ 	<insert id="insertBuss" useGeneratedKeys="true" keyProperty="ser_id">
+ 		insert into buss(acc_id,ser_os,ser_pwd,ser_ip,ser_state,fee_id,ser_ctime)values(#{acc_id},#{ser_os},#{ser_pwd},#{ser_ip},#{ser_state},#{fee_id},#{ser_ctime})
+ 	</insert>
+ 	
+ 	<update id="updateBussById">
+ 		update buss set fee_id=#{fee_id} where ser_id=#{ser_id}
+ 	</update>
+ 	
+ 	<update id="updateBussState0">
+ 	    update buss set ser_state=2,ser_ctime=#{ser_ctime} where ser_id=#{ser_id}
+ 	</update>
+ 	
+ 	<update id="updateBussState1">
+ 	    update buss set ser_state=0,ser_ctime=#{ser_ctime} where ser_id=#{ser_id}
+ 	</update>
+ 	
+ 	<update id="updateBussState2">
+ 	    update buss set ser_state=1,ser_ctime=#{ser_ctime} where ser_id=#{ser_id}
+ 	</update>
+ 	
+ 	<resultMap type="com.netctoss.entity.Buss" id="BussResult">
+ 		<id column="ser_id" property="ser_id"/>
+ 		<result column="acc_id" property="acc_id"/>
+ 		<result column="ser_os" property="ser_os"/>
+ 		<result column="ser_pwd" property="ser_pwd"/>
+ 		<result column="ser_ip" property="ser_ip"/>
+ 		<result column="ser_state" property="ser_state"/>
+ 		<result column="fee_id" property="fee_id"/>
+ 		<result column="ser_ctime" property="ser_ctime"/>
+	 		<association property="acc" javaType="com.netctoss.entity.Account" >
+	 			<id column="acc_id" property="acc_id"/>
+	 			<result column="acc_idc" property="acc_idc"/>
+		 		<result column="acc_name" property="acc_name"/>
+		 		<result column="acc_state" property="acc_state"/>
+	 		</association>
+	 		<association property="fee" javaType="com.netctoss.entity.Fee">
+	 			<id column="fee_id" property="fee_id"/>
+	 			<result column="fee_name" property="fee_name"/>
+		 		<result column="fee_des" property="fee_des"/>
+	 		</association>
+ 	</resultMap>
+ 	
+ 	<select id="selectAllBuss" resultMap="BussResult">
+ 		select b.ser_id,f.acc_id,ser_os,ser_pwd,ser_ip,ser_state,t.fee_id,ser_ctime,f.acc_idc,f.acc_name,t.fee_name,
+ 		t.fee_des from buss b inner join account f on b.acc_id=f.acc_id inner join fee t on b.fee_id=t.fee_id
+ 	</select>
+ 	
+ 	<select id="selectBussById" resultMap="BussResult">
+ 		select b.ser_id,f.acc_id,ser_os,ser_pwd,ser_ip,ser_state,t.fee_id,ser_ctime,f.acc_idc,f.acc_name,t.fee_name,
+ 		t.fee_des from buss b inner join account f on b.acc_id=f.acc_id inner join fee t on b.fee_id=t.fee_id where ser_id=#{ser_id}
+ 	</select>
+ 	
+ 	<select id="selectCount" parameterType="Buss" resultType="java.lang.Integer" >
+ 		select count(ser_os) from (select b.ser_id,f.acc_id,ser_os,ser_pwd,ser_ip,ser_state,t.fee_id,ser_ctime,acc_idc,f.acc_name,t.fee_name,
+ 		t.fee_des from buss b inner join account f on b.acc_id=f.acc_id inner join fee t on b.fee_id=t.fee_id
+	 	<where>
+	 		<if test='ser_os!=null and ser_os!=""'>
+	 			 and ser_os like concat(concat('%',#{ser_os}),'%')
+	 		</if>
+	 		<if test='ser_ip!=null and ser_ip!=""'>
+	 			and ser_ip like concat(concat('%',#{ser_ip}),'%')
+	 		</if>
+	 		<if test='acc_id!=null and acc_id!=""'>
+	 			and b.acc_id=#{acc_id}
+	 		</if> 
+	 		<if test='ser_state!=null and ser_state!=4'>
+	 			and ser_state=#{ser_state}
+	 		</if>
+	 	</where>) a
+ 	</select>
+ 	
+ 	<select id="selectByPageCondition" resultMap="BussResult" parameterType="java.util.HashMap">
+ 		select b.ser_id,f.acc_id,ser_os,ser_pwd,ser_ip,ser_state,t.fee_id,ser_ctime,acc_idc,f.acc_name,t.fee_name,
+ 		t.fee_des,f.acc_state from buss b inner join account f on b.acc_id=f.acc_id inner join fee t on b.fee_id=t.fee_id
+	 	<where>
+	 		<if test='bus.ser_os!=null and bus.ser_os!=""'>
+	 			 and ser_os like concat(concat('%',#{bus.ser_os}),'%')
+	 		</if>
+	 		<if test='bus.ser_ip!=null and bus.ser_ip!=""'>
+	 			and ser_ip like concat(concat('%',#{bus.ser_ip}),'%')
+	 		</if>
+	 		<if test='bus.acc_id!=null and bus.acc_id!=""'>
+	 			and b.acc_id=#{bus.acc_id}
+	 		</if> 
+	 		<if test='bus.ser_state!=null and bus.ser_state!=4'>
+	 			and ser_state=#{bus.ser_state}
+	 		</if>
+	 	</where>
+	 		limit #{page.startPage},#{page.pageSize}
+ 	</select>
+ 	
+ 	<select id="selectBussByOsname" resultType="Buss">
+ 		select ser_id from buss where ser_os=#{osname}
+ 	</select>
+ </mapper>

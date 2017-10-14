@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.netctoss.dao.PowersDao">
+	
+	<!-- 通过pow_id查找Powers -->
+	<select id="selectPowersByConnection" resultType="Powers">
+		SELECT p.pow_id,p.pow_name FROM rolepower pr JOIN powers p ON pr.pow_id=p.pow_id WHERE pr.rol_id=#{rol_id}
+	</select>
+	<select id="selectAllPowers" resultType="Powers">
+		select pow_id,pow_name,pow_url,pow_class from powers
+	</select>
+	
+</mapper>

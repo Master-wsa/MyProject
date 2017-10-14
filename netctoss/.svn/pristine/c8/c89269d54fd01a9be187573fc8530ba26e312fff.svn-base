@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.netctoss.dao.DetailDao">
+	<select id="selectAllDetail" resultMap="itemMap" >
+		SELECT * FROM detail d LEFT JOIN fee f ON d.fee_id=f.fee_id 
+		where d.ser_id=#{ser_id} and DATE_FORMAT( STR_TO_DATE('${timeDate}','%Y-%m-%d'),'%Y%m') = DATE_FORMAT(ser_itime,'%Y%m' )
+		limit #{start},#{pageSize}
+	</select>
+	<resultMap type="Detail" id="itemMap">
+		<id property="det_id" column="det_id" />
+		<result property="det_fee" column="det_fee" />
+		<result property="ser_time" column="ser_time" />
+		<result property="ser_itime" column="ser_itime" />
+		<result property="ser_otime" column="ser_otime" />
+		<result property="ser_ip" column="ser_ip" />
+		<association property="fee_id" javaType="Fee" column="fee_id" >
+			<id property="fee_id" column="fee_id" />
+			<result property="fee_name" column="fee_name" />
+		</association>
+	</resultMap>
+</mapper>

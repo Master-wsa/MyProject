@@ -1,0 +1,164 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+        <link type="text/css" rel="stylesheet" media="all" href="${pageContext.request.contextPath}/css/global.css" />
+		<link type="text/css" rel="stylesheet" media="all" href="${pageContext.request.contextPath}/css/global_color.css" />
+		<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery-1.12.4.js"></script> 
+        <script type="text/javascript">
+	        $(function(){
+	    		$("#input").keypress(function(event){
+	    			var keyCode = (event.keyCode?event.keyCode:event.which);
+	    			if(keyCode==13){
+	    				login();
+	    			}
+	    		})
+	    		$("#sub").click(function(){
+	    			login();
+	    		})
+	    		$("#adm_login").focus(function(){
+	    			$("#loginWarn").text("");
+	    		})
+	    		$("#adm_pwd").focus(function(){
+	    			$("#pwdWarn").text("");
+	    		})
+	    	})
+	    	//登录验证
+	    	function login(){
+	        	if($("#adm_login").val()==""){
+					$("#loginWarn").text("登录名不能为空！");
+				}else if($("#adm_pwd").val()==""){
+					$("#pwdWarn").text("密码不能为空！");
+				}else if($("#loginWarn").text()==""&&$("#pwdWarn").text()==""){
+	    			var code = $("#code").val().toUpperCase();
+	    			var input = $("#input").val().toUpperCase();
+	    			if(code == input){
+	    				$("#forml").submit();
+	    			}
+	    			else{
+	    				$("#warn").text("验证码错误");
+	    				$("#input").val("");
+	    				change();
+	    			}
+				}
+	        }
+	    	$(function(){
+	    		$("#adm_login").blur(function(){
+		    		var value = $("#adm_login").val();
+		    		var regs = /^[0-9a-zA-Z_]{1,30}$/;
+		    		if(!regs.test(value)){
+		    			$("#loginWarn").text("30长度的字母、数字和下划线");
+		    		}
+		    	})
+		    	$("#adm_login").focus(function(){
+		    		$("#loginWarn").text("");
+		    	})
+		    	$("#adm_pwd").blur(function(){
+		    		var value = $("#adm_pwd").val();
+		    		var regs = /^[0-9a-zA-Z_]{1,30}$/;
+		    		if(!regs.test(value)){
+		    			$("#pwdWarn").text("30长度的字母、数字和下划线");
+		    		}
+		    	})
+		    	$("#adm_pwd").focus(function(){
+		    		$("#pwdWarn").text("");
+		    	})
+	    	})
+	    	function change(){
+	        	//验证码组成库
+	        	var arrays = new Array(
+	        		'1','2','3','4','5','6','7','8','9','0', 
+	   	            'a','b','c','d','e','f','g','h','i','j', 
+	   	            'k','l','m','n','o','p','q','r','s','t', 
+	   	            'u','v','w','x','y','z',
+	   	            'A','B','C','D','E','F','G','H','I','J', 
+	   	            'K','L','M','N','O','P','Q','R','S','T', 
+	   	            'U','V','W','X','Y','Z'
+	        	);
+	        	//初始化验证码
+	      	 	var codes = '';
+	        	for(var i=0; i < 5 ; i++){
+	        		//随机获取一个数组的下标,获取验证码
+	        		var r = parseInt(Math.random()*arrays.length);
+	        		codes += arrays[r];
+	        	}
+	        	//随机产生字体颜色
+    			function getRandomFontColor(){ 
+        			var c = '#'; 
+        			var cArray = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F']; 
+        			for(var i = 0; i < 6;i++){ 
+	        			var fontIndex = Math.round(Math.random()*15);
+	        			c += cArray[fontIndex]; 
+        			} 
+        			return c;
+    			}
+	        	$("#code").css("color",getRandomFontColor()); 
+	        	$("#code").val(codes);
+	        }
+	        $(function(){
+	        	//界面加载完后调用
+	        	change();
+	        	$("#code").click(function(){
+		        	change();
+		        });
+	        	$("#input").focus(function(){
+	        		$("#warn").text("");
+	        	})
+	        })
+        </script>
+        <style type="text/css">
+        	#code{
+        		width :85px;
+        		height:35px;
+        		font-family: inherit;
+        		font-size: 20px;
+        		font-style: oblique;
+        		font-weight: bold;
+        		border: 0;
+        		letter-spacing: 2px;
+        		text-shadow: 5px 5px 5px #595435;
+        		font-variant:small-caps;
+        		background-color:white;
+        	}
+        </style>
+    </head>
+    <body class="index">
+        <div class="login">
+        	<div class="login_box">
+           <form action="${pageContext.request.contextPath }/admin/login.do" method="post" id="forml">
+	            <table>
+	                <tr id="loginTest">
+	                    <td class="login_info">账号：</td>
+	                    <td colspan="2" ><input id="adm_login" name="adm_login" placeholder="请输入您的账号" type="text" value="${admin.adm_login}" class="width150" /></td>
+	                    <td class="login_error_info"><span class="required" id="loginWarn"></span></td>
+	                </tr>
+	                <tr>
+	                    <td class="login_info">密码：</td>
+	                    <td colspan="2" ><input id="adm_pwd" name="adm_pwd" placeholder="请输入您的密码" type="password" value="${admin.adm_pwd}" class="width150" /></td>
+	                    <td><span class="required" id="pwdWarn"></span></td>
+	                </tr>
+	                <tr>
+	                    <td class="login_info">验证码：</td>
+	                    <td class="width70"><input type="text" id="input" class="width70" /></td>
+	                    <td><input type="button" id="code"/></td>
+	                    <td><span class="required" id="warn"></span></td>         
+	                </tr>
+	                <tr>
+	                    <td></td>
+	                    <td colspan="2">
+	                       <a id="sub"><img src="${pageContext.request.contextPath }/images/login_btn.png"/></a>
+	                       <!--  <input width="120px" height="100px" type="image" src="../images/login_btn.png" > -->
+	                    </td>    
+	                    <td>
+	                		<span class="required" style="color: red" id="error">${error}</span>
+	                	</td>            
+	                </tr>
+	            </table>
+           </form>
+        </div>
+        </div>
+    </body>
+</html>

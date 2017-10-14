@@ -1,0 +1,4 @@
+datasource.driver=com.mysql.jdbc.Driver
+datasource.url=jdbc:mysql://47.94.13.2:3306/netctoss?&allowMultiQueries=true
+datasource.username=root
+datasource.password=wang

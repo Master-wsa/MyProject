@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.netctoss.dao.AdminDao">
+	<sql id="adminColumn">a.adm_id,a.adm_login,a.adm_pwd,a.adm_name,
+	a.adm_tel,a.adm_email,a.adm_date,a.adm_img,a.b1,a.b2,a.b3,a.b4</sql>
+	<sql id="roleColumn">r.rol_id,r.rol_name,r.b1,r.b2,r.b3,r.b4</sql>
+	<sql id="powersColum">p.pow_id,p.pow_name,p.pow_class,p.pow_url,p.b1,p.b2,p.b3,p.b4</sql>
+	
+	<resultMap type="Admin" id="loginResult">
+		<id property="adm_id" column="adm_id"/>
+		<result property="adm_login" column="adm_login"/>
+		<result property="adm_pwd" column="adm_pwd"/>
+		<result property="adm_name" column="adm_name"/>
+		<result property="adm_tel" column="adm_tel"/>
+		<result property="adm_email" column="adm_email"/>
+		<result property="adm_date" column="adm_date"/>
+		<result property="adm_img" column="adm_img"/>
+		<collection property="lr" javaType="java.util.List" ofType="Role">
+			<id property="rol_id" column="rol_id"/>
+			<result property="rol_name" column="rol_name"/>
+		</collection>
+		<collection property="lp" javaType="java.util.List" ofType="Powers">
+				<id property="pow_id" column="pow_id"/>
+				<result property="pow_name" column="pow_name"/>
+				<result property="pow_class" column="pow_class"/>
+				<result property="pow_url" column="pow_url"/>
+		</collection>
+	</resultMap>
+	
+	
+	<insert id="insertAdmin" useGeneratedKeys="true" keyProperty="adm_id">
+		insert into admin(adm_name,adm_login,adm_pwd,adm_img,adm_tel,adm_email,adm_date) 
+		values(#{adm_name},#{adm_login},#{adm_pwd},#{adm_img},#{adm_tel},#{adm_email},#{adm_date})
+	</insert>
+	<insert id="insertAdmrol" parameterType="java.util.List">
+		insert into adminrole(adm_id,rol_id) values 
+		<foreach collection="lr" item="item" open=" " separator="," close=" ">
+			(#{adm_id},#{item.rol_id})
+		</foreach>
+	</insert>
+	
+	<update id="updateAdminInfo">
+		UPDATE admin SET 
+		adm_name=#{adm_name},adm_tel=#{adm_tel},adm_email=#{adm_email}
+		where adm_id=#{adm_id}
+	</update>
+	<update id="updateInfoByAdmin">
+		update admin set adm_name=#{adm_name},adm_login=#{adm_login},
+						 adm_tel=#{adm_tel},adm_email=#{adm_email} 
+						 where adm_id=#{adm_id}
+	</update>
+	<update id="updateResetPsw" parameterType="java.util.List">
+		<foreach collection="list" item="list" index="i" open="" separator=";" close="">
+			update admin set adm_pwd='123456' where adm_id=#{list}
+		</foreach>
+	</update>
+	<update id="updateImage">
+		update admin set adm_img=#{adm_img} where adm_id=#{adm_id}
+	</update>
+	
+	<delete id="deleteAdmin">
+		delete from admin where adm_id=#{adm_id}
+	</delete>
+	<delete id="deleteAdmrol">
+		delete from adminrole where adm_id=#{adm_id}
+	</delete>
+	
+
+	<select id="selectAdminByRoleId" resultMap="loginResult">
+		SELECT DISTINCT(a.adm_id) from admin a 
+		LEFT JOIN adminrole ar ON a.`adm_id`=ar.`adm_id` 
+		LEFT JOIN role r ON ar.`rol_id`=r.`rol_id` 
+		LEFT JOIN rolepower rp ON r.`rol_id`=rp.`rol_id` 
+		LEFT JOIN powers p ON rp.`pow_id`=p.`pow_id` where r.rol_id=#{rol_id}
+	</select>
+	<select id="login" resultMap="loginResult">
+		SELECT <include refid="adminColumn"></include>,
+		<include refid="roleColumn"></include>,<include refid="powersColum"></include> 
+		FROM admin a LEFT JOIN adminrole ar ON a.`adm_id`=ar.`adm_id` 
+		LEFT JOIN role r ON ar.`rol_id`=r.`rol_id` 
+		LEFT JOIN rolepower rp ON r.`rol_id`=rp.`rol_id` 
+		LEFT JOIN powers p ON rp.`pow_id`=p.`pow_id`
+		where a.adm_login=#{adm_login} and a.adm_pwd=#{adm_pwd}
+	</select>
+	<select id="selectAllAdmid" resultType="int">
+		SELECT DISTINCT(a.adm_id) from admin a 
+		LEFT JOIN adminrole ar ON a.`adm_id`=ar.`adm_id` 
+		LEFT JOIN role r ON ar.`rol_id`=r.`rol_id` 
+		LEFT JOIN rolepower rp ON r.`rol_id`=rp.`rol_id` 
+		LEFT JOIN powers p ON rp.`pow_id`=p.`pow_id` 
+		<where>
+			<if test='pow_id!=-1 and pow_id!=null'>
+				AND p.`pow_id`=#{pow_id} 
+			</if>
+			<if test='rol_name!="" and rol_name!=null'>
+				AND r.`rol_name`=#{rol_name} 
+			</if>
+		</where>
+		order by a.adm_id desc limit #{start},#{pageSize}
+	</select>
+	<select id="selectAllAdmins" parameterType="java.util.List" resultMap="loginResult">
+		SELECT <include refid="adminColumn"></include>,
+		<include refid="roleColumn"></include>,<include refid="powersColum"></include> 
+		FROM admin a 
+		LEFT JOIN adminrole ar ON a.`adm_id`=ar.`adm_id` 
+		LEFT JOIN role r ON ar.`rol_id`=r.`rol_id` 
+		LEFT JOIN rolepower rp ON r.`rol_id`=rp.`rol_id` 
+		LEFT JOIN powers p ON rp.`pow_id`=p.`pow_id` 
+		<where>
+			a.adm_id in (0
+			<foreach collection="list" index="index" item="list" open="," separator="," >
+				#{list}
+			</foreach>
+			)
+		</where>
+		order by a.adm_id desc 
+	</select>
+	<select id="selectAdminById" resultMap="loginResult">
+		SELECT <include refid="adminColumn"></include>,
+		<include refid="roleColumn"></include>,<include refid="powersColum"></include> 
+		FROM admin a LEFT JOIN adminrole ar ON a.`adm_id`=ar.`adm_id` 
+		LEFT JOIN role r ON ar.`rol_id`=r.`rol_id` 
+		LEFT JOIN rolepower rp ON r.`rol_id`=rp.`rol_id` 
+		LEFT JOIN powers p ON rp.`pow_id`=p.`pow_id`
+		where a.adm_id=#{adm_id}
+	</select>
+	<select id="selectAdminCount" resultType="int">
+		select count(DISTINCT a.adm_id) 
+		FROM admin a LEFT JOIN adminrole ar ON a.`adm_id`=ar.`adm_id` 
+		LEFT JOIN role r ON ar.`rol_id`=r.`rol_id` 
+		LEFT JOIN rolepower rp ON r.`rol_id`=rp.`rol_id` 
+		LEFT JOIN powers p ON rp.`pow_id`=p.`pow_id`
+		<where>
+			<if test='pow_id!=-1 and pow_id!=null'>
+				AND p.`pow_id`=#{pow_id} 
+			</if>
+			<if test='rol_name!="" and rol_name!=null'>
+				AND r.`rol_name`=#{rol_name} 
+			</if>
+		</where>
+	</select>
+	<select id="selectAdminByAccount" resultType="Admin">
+		select <include refid="adminColumn"></include> from admin a where adm_login=#{adm_login}
+	</select>
+	
+	<!-- 修改管理员密码 -->
+	<update id="updateAdminPsw">
+		UPDATE admin SET adm_pwd=#{adm_pwd} where adm_id=#{adm_id}
+	</update>
+	
+	<!-- 删除管理员角色（fcy） -->
+	<delete id="delectAdminRole">
+		DELETE FROM adminrole WHERE rol_id=#{rol_id}
+	</delete>
+</mapper>
